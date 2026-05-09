@@ -14,7 +14,13 @@ Healthcare Management System built using:
 
 ## Architecture
 
-Frontend → API Gateway → Backend Services
+1. User opens frontend
+2. Frontend sends request to API Gateway
+3. Gateway discovers services via Eureka
+4. Gateway routes request to target service
+5. Services load configuration from Config Server
+6. Services communicate داخل Docker Network
+7. Data stored in MySQL
 
 ## Services
 
