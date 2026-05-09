@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS healthlink_db;
+CREATE DATABASE IF NOT EXISTS notification_db;

@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: healthlink-notification-service
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+  profiles:
+    active: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://config-server:8888}"

@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthLink — Healthcare Management System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+
+
+<script>
+window.APP_CONFIG = {
+  API_URL: "http://localhost:8080"
+};
+</script>
+<div id="app">
+
+  <!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="brand-icon">🏥</div>
+      <h1>HealthLink</h1>
+      <p>Healthcare Management System</p>
+    </div>
+    <p class="login-role-label">Select Your Role</p>
+    <div class="login-roles" id="role-selector">
+      <button class="role-btn selected" data-role="patient" onclick="AuthController.selectRole(this,'patient')">🧑‍💼 Patient</button>
+      <button class="role-btn" data-role="doctor" onclick="AuthController.selectRole(this,'doctor')">👨‍⚕️ Doctor</button>
+      <!--<button class="role-btn" data-role="admin" onclick="AuthController.selectRole(this,'admin')">🛡️ Admin</button>-->
+      <button class="role-btn" data-role="nurse" onclick="AuthController.selectRole(this,'nurse')">💉 Nurse</button>
+    </div>
+    <div class="login-form">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" id="login-email" placeholder="you@healthlink.care">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="login-pass" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;" onclick="AuthController.doLogin()">Sign In →</button>
+    </div>
+    <p style="text-align:center;margin-top:14px;font-size:.85rem;color:var(--color-muted);">
+      Don't have an account? 
+      <a href="#" style="color:var(--color-accent);" onclick="AuthController.showRegister()">Register</a>
+    </p>
+    <a class="emergency-login-link" onclick="AuthController.goEmergencyDirect()" style="cursor:pointer;">🚨 Emergency? Access Hotline Without Login</a>
+  </div>
+</div>
+
+<!-- REGISTER SCREEN -->
+<div id="register-screen" style="display:none;justify-content:center;align-items:center;min-height:100vh;">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="brand-icon">🏥</div>
+      <h1>HealthLink</h1>
+      <p>Create your account</p>
+    </div>
+    <p class="login-role-label">Select Your Role</p>
+    <div class="login-roles" id="reg-role-selector">
+      <button class="role-btn selected" data-role="patient" onclick="AuthController.selectRole(this,'patient')">🧑‍💼 Patient</button>
+      <button class="role-btn" data-role="doctor" onclick="AuthController.selectRole(this,'doctor')">👨‍⚕️ Doctor</button>
+      <!--<button class="role-btn" data-role="admin" onclick="AuthController.selectRole(this,'admin')">🛡️ Admin</button>-->
+      <button class="role-btn" data-role="nurse" onclick="AuthController.selectRole(this,'nurse')">💉 Nurse</button>
+    </div>
+    <div class="login-form">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-control" id="reg-name" placeholder="John Doe">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" id="reg-email" placeholder="you@healthlink.care">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="reg-pass" placeholder="••••••••">
+      </div>
+
+      <!-- Doctor-only fields -->
+      <div id="doctor-fields" style="display:none;flex-direction:column;gap:14px;">
+        <div class="form-group">
+          <label class="form-label">Specialization</label>
+          <select class="form-control" id="reg-spec">
+            <option>Cardiology</option>
+            <option>Dermatology</option>
+            <option>Neurology</option>
+            <option>Pediatrics</option>
+            <option>Orthopedics</option>
+            <option>General Practice</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Years of Experience</label>
+          <input type="number" class="form-control" id="reg-exp" placeholder="e.g. 5" min="0">
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;margin-top:6px;" onclick="AuthController.register()">Create Account →</button>
+    </div>
+    <p style="text-align:center;margin-top:14px;font-size:.85rem;color:var(--color-muted);">
+      Already have an account? 
+      <a href="#" style="color:var(--color-accent);" onclick="AuthController.showLogin()">Sign In</a>
+    </p>
+  </div>
+</div>
+
+  <!-- APP SHELL -->
+  <div id="app-shell" style="display:none;">
+    <nav class="navbar">
+      <a class="navbar-brand" href="#" onclick="return false;">
+        <div class="brand-icon">🏥</div>
+        HealthLink
+      </a>
+      <div class="navbar-right">
+        <span class="nav-role-badge" id="nav-role-label">Patient</span>
+        <button class="theme-toggle" id="theme-toggle" onclick="ThemeController.toggle()" title="Toggle Light/Dark Mode">🌙</button>
+        <button class="nav-notif" onclick="NavigationController.navigate('notifications')" title="Notifications">
+          🔔<span class="notif-dot" id="notif-dot"></span>
+        </button>
+        <button class="nav-btn nav-btn-ghost" onclick="AuthController.logout()">Sign Out</button>
+      </div>
+    </nav>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar"></aside>
+      <main class="main" id="main-content">
+
+        <!-- ==================== PATIENT PAGES ==================== -->
+
+        <!-- PATIENT: HOME -->
+        <div class="page" id="page-home">
+          <div class="page-header-row">
+            <div>
+              <h2 style="color:var(--color-heading)">Welcome back, Sarah 👋</h2>
+              <p style="color:var(--color-muted)">Monday, 13 April 2026 — Your health, simplified.</p>
+            </div>
+            <button class="btn btn-primary" onclick="NavigationController.navigate('book-appointment')">+ Book Appointment</button>
+          </div>
+         <div class="grid-4" style="margin-bottom:28px;">
+  
+            <div class="stat-card">
+              <div class="stat-icon">📅</div>
+              <div class="stat-label">Upcoming Appts</div>
+              <div class="stat-value" id="stat-upcoming">0</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">📋</div>
+              <div class="stat-label">Medical Records</div>
+              <div class="stat-value" id="stat-records">0</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">💊</div>
+              <div class="stat-label">Active Prescriptions</div>
+              <div class="stat-value" id="stat-prescriptions">-</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">💰</div>
+              <div class="stat-label">Wallet Balance</div>
+              <div class="stat-value" id="home-wallet-val">EGP 0</div>
+            </div>
+
+          </div>
+          <div class="grid-2">
+            <div>
+              <div class="section-title">Upcoming Appointments</div>
+              <div
+                  id="patient-upcoming-list"
+                  style="display:flex;flex-direction:column;gap:12px;">
+              </div>
+            </div>
+            <div>
+              <div class="section-title">Recent Notifications</div>
+              <div
+                  id="patient-notifications-list"
+                  style="display:flex;flex-direction:column;gap:10px;">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PATIENT: DOCTORS -->
+        <div class="page" id="page-doctors">
+          <div class="page-header-row">
+            <div class="page-header" style="margin-bottom:0;"><h2>Browse Doctors</h2><p>Find the right specialist for your needs</p></div>
+            <div class="search-bar"><span>🔍</span><input type="text" placeholder="Search by name or specialty…" oninput="PatientController.filterDoctors(this.value)" id="doctor-search-input"></div>
+          </div>
+          <div class="filter-tabs" id="spec-filter">
+            <button class="filter-tab active" onclick="PatientController.filterBySpec(this,'All')">All</button>
+            <button class="filter-tab" onclick="PatientController.filterBySpec(this,'Cardiology')">Cardiology</button>
+            <button class="filter-tab" onclick="PatientController.filterBySpec(this,'Dermatology')">Dermatology</button>
+            <button class="filter-tab" onclick="PatientController.filterBySpec(this,'Neurology')">Neurology</button>
+            <button class="filter-tab" onclick="PatientController.filterBySpec(this,'Pediatrics')">Pediatrics</button>
+            <button class="filter-tab" onclick="PatientController.filterBySpec(this,'Orthopedics')">Orthopedics</button>
+            <button class="filter-tab" onclick="PatientController.filterBySpec(this,'General')">General</button>
+          </div>
+          <div class="grid-3" id="doctors-grid"></div>
+        </div>
+
+        <!-- PATIENT: BOOK APPOINTMENT -->
+        <div class="page" id="page-book-appointment">
+          <div class="page-header"><h2>Book an Appointment</h2><p>Select a doctor, date, and time slot</p></div>
+          <div class="grid-2">
+            <div style="display:flex;flex-direction:column;gap:18px;">
+              <div class="card">
+                <h3 style="color:var(--color-heading);margin-bottom:16px;">Appointment Details</h3>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                  <div class="form-group"><label class="form-label">Select Doctor</label>
+                    <select class="form-control" id="book-doctor">
+                      <option>Dr. Mohamed Ahmed – Cardiology</option><option>Dr. Lina Khalil – Dermatology</option>
+                      <option>Dr. Omar Hassan – Neurology</option><option>Dr. Nadia Samy – Pediatrics</option>
+                      <option>Dr. Tarek Mansour – Orthopedics</option><option>Dr. Rania Fahmy – General Practice</option>
+                    </select></div>
+                  <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-control" id="book-date"></div>
+                    <div class="form-group"><label class="form-label">Preferred Time</label>
+                      <select class="form-control" id="book-time">
+
+                          <option value="09:00:00">09:00 AM</option>
+
+                          <option value="09:30:00">09:30 AM</option>
+
+                          <option value="10:00:00">10:00 AM</option>
+
+                          <option value="10:30:00">10:30 AM</option>
+
+                          <option value="11:00:00">11:00 AM</option>
+
+                          <option value="14:00:00">02:00 PM</option>
+
+                          <option value="15:00:00">03:00 PM</option>
+
+                          <option value="16:00:00">04:00 PM</option>
+
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group"><label class="form-label">Reason for Visit</label><textarea class="form-control" rows="3" placeholder="Briefly describe your symptoms…"></textarea></div>
+                  <div class="form-group"><label class="form-label">Visit Type</label>
+                    <select class="form-control" id="visit-type"><option>In-Clinic</option><option>Home Visit</option><option>Video Consultation</option></select></div>
+                </div>
+              </div>
+              <div class="card">
+                <h3 style="color:var(--color-heading);margin-bottom:16px;">Payment — Wallet Deduction</h3>
+                <div style="display:flex;flex-direction:column;gap:12px;color:var(--color-muted);font-size:.9rem;">
+                  <div style="display:flex;justify-content:space-between;"><span>Consultation Fee</span><span style="color:var(--color-heading);">EGP 450</span></div>
+                  <div style="display:flex;justify-content:space-between;"><span>Insurance Covers</span><span style="color:var(--color-success);">EGP 350</span></div>
+                  <hr class="sep">
+                  <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:600;"><span style="color:var(--color-heading);">Deducted from Wallet</span><span style="color:var(--color-accent);">EGP 100</span></div>
+                  <div style="background:var(--color-accent-dim);border:1px solid var(--color-border);border-radius:8px;padding:10px 14px;font-size:.83rem;color:var(--color-accent);">💳 Current wallet balance: <strong id="wallet-book-display">EGP 1,200</strong></div>
+                </div>
+                <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:20px;" onclick="PatientController.bookAppointment()">Confirm Booking & Deduct EGP 100 →</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:18px;">
+              <div class="card"><h3 style="color:var(--color-heading);margin-bottom:14px;">📋 Availability</h3><div style="display:flex;flex-wrap:wrap;gap:8px;"><span class="badge badge-teal">Mon 9-12</span><span class="badge badge-teal">Mon 2-5</span><span class="badge badge-teal">Wed 9-1</span><span class="badge badge-teal">Thu 10-3</span><span class="badge badge-red">Tue Off</span><span class="badge badge-red">Fri Off</span></div></div>
+              <div class="card"><h3 style="color:var(--color-heading);margin-bottom:14px;">⚠️ Cancellation Policy</h3><p style="color:var(--color-muted);font-size:.88rem;line-height:1.6;">You may cancel up to <strong style="color:var(--color-heading);">24 hours</strong> before the appointment. Late cancellations may incur EGP 50 fee deducted from wallet.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PATIENT: MY APPOINTMENTS -->
+        <div class="page" id="page-my-appointments">
+          <div class="page-header-row">
+            <div class="page-header" style="margin-bottom:0;"><h2>My Appointments</h2><p>Track and manage all your bookings</p></div>
+            <button class="btn btn-primary" onclick="NavigationController.navigate('book-appointment')">+ New Booking</button>
+          </div>
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="UIHelpers.setTabActive(this)">All</button>
+            <button class="filter-tab" onclick="UIHelpers.setTabActive(this)">Upcoming</button>
+            <button class="filter-tab" onclick="UIHelpers.setTabActive(this)">Completed</button>
+            <button class="filter-tab" onclick="UIHelpers.setTabActive(this)">Cancelled</button>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Doctor</th><th>Specialization</th><th>Date & Time</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="appt-table-body"></tbody>
+          </table></div>
+        </div>
+
+        <!-- PATIENT: MEDICAL HISTORY -->
+<div class="page" id="page-medical-history">
+
+  <div class="page-header">
+    <h2>Medical History</h2>
+    <p>Your complete health records — read only</p>
+  </div>
+
+  <div
+    class="card"
+    style="
+      max-width: 900px;
+      padding: 28px;
+    "
+  >
+
+    <div class="section-title">
+      Visit Timeline
+    </div>
+
+    <div
+      class="timeline"
+      id="history-timeline"
+    ></div>
+
+  </div>
+
+</div>
+
+        <!-- PATIENT: HOME SERVICES -->
+        <div class="page" id="page-home-services">
+          <div class="page-header"><h2>Home Services</h2><p>Request medical services at your doorstep</p></div>
+          <div class="grid-2">
+            <div class="card">
+              <h3 style="color:var(--color-heading);margin-bottom:18px;">Request a Service</h3>
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <div class="form-group"><label class="form-label">Service Type</label>
+                  <select class="form-control" id="service-type">
+                    <option>Blood Pressure Measurement</option><option>Blood Sugar Test</option>
+                    <option>Wound Dressing</option><option>IV Infusion</option>
+                    <option>Injection Administration</option><option>Physiotherapy</option><option>Elderly Care Check</option>
+                  </select></div>
+                <div class="form-group"><label class="form-label">Preferred Date</label><input type="date" class="form-control" id="service-date"></div>
+                <div class="form-group"><label class="form-label">Preferred Time</label>
+                  <select class="form-control" id="service-time"><option>Morning (8–12 AM)</option><option>Afternoon (12–4 PM)</option><option>Evening (4–8 PM)</option></select></div>
+                <div class="form-group"><label class="form-label">Address</label><input class="form-control" id="service-address" value="15 Tahrir St, Cairo, Egypt"></div>
+                <div class="form-group"><label class="form-label">Contact Phone</label><input class="form-control" id="service-phone" placeholder="+20 123 456 7890"></div>
+                <div class="form-group"><label class="form-label">Notes for Nurse</label><textarea class="form-control" id="service-notes" rows="2" placeholder="Any special instructions…"></textarea></div>
+                <div style="background:var(--color-accent-dim);border:1px solid var(--color-border);border-radius:8px;padding:10px 14px;font-size:.83rem;color:var(--color-accent);">💳 Service fee (EGP 150) will be deducted from your wallet upon approval.</div>
+                <button class="btn btn-primary" onclick="PatientController.requestHomeService()">Submit Request →</button>
+              </div>
+            </div>
+            <div>
+              <div class="section-title">My Service Requests</div>
+              <div id="home-service-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PATIENT: WALLET -->
+        <div class="page" id="page-wallet">
+          <div class="page-header"><h2>Wallet & Payments</h2><p>Manage your balance and transaction history</p></div>
+          <div class="grid-2" style="margin-bottom:24px;">
+            <div class="wallet-card">
+              <div class="wallet-label">Current Balance</div>
+              <div class="wallet-balance" id="wallet-balance-display">EGP 1,200</div>
+              <div
+                  id="wallet-owner-name"
+                  style="
+                  color:var(--color-muted);
+                  font-size:.82rem;
+                  margin-bottom:20px;
+                  "
+                  >
+                  HealthLink Wallet
+              </div>
+              <div style="display:flex;gap:10px;">
+                <button class="btn btn-primary" onclick="PatientController.showTopupModal()">+ Top Up Balance</button>
+                <button class="btn btn-ghost" onclick="NavigationController.navigate('payment-history')">View History</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+
+  <div class="stat-card">
+    <div class="stat-icon">💸</div>
+    <div class="stat-label">
+      Total Spent (This Month)
+    </div>
+    <div
+      class="stat-value"
+      id="wallet-total-spent"
+      style="
+        font-size:1.4rem;
+        color:var(--color-danger);
+      "
+    >
+      EGP 0
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon">✅</div>
+    <div class="stat-label">
+      Transactions (This Month)
+    </div>
+    <div
+      class="stat-value"
+      id="wallet-transactions-count"
+      style="font-size:1.6rem;"
+    >
+      0
+    </div>
+  </div>
+
+</div>
+          </div>
+          <div class="section-title">Recent Transactions</div>
+          <div id="wallet-transactions" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+
+        <!-- PATIENT: FEEDBACK -->
+        <div class="page" id="page-feedback">
+          <div class="page-header"><h2>Feedback & Reviews</h2><p>Rate your experience and help us improve</p></div>
+          <div class="grid-2">
+            <div class="card">
+              <h3 style="color:var(--color-heading);margin-bottom:18px;">Submit a Review</h3>
+              <div style="display:flex;flex-direction:column;gap:16px;">
+                <div class="form-group"><label class="form-label">Select Doctor / Service</label>
+                  <select class="form-control" id="feedback-target">
+                    <option>Dr. Mohamed Ahmed – Cardiology</option><option>Dr. Lina Khalil – Dermatology</option>
+                    <option>Dr. Omar Hassan – Neurology</option><option>Home Service – Blood Pressure Check</option>
+                    <option>General Experience</option>
+                  </select></div>
+                <div class="form-group">
+                  <label class="form-label">Rating</label>
+                  <div class="stars-input" id="star-rating">
+                    <span onclick="PatientController.setRating(1)">★</span>
+                    <span onclick="PatientController.setRating(2)">★</span>
+                    <span onclick="PatientController.setRating(3)">★</span>
+                    <span onclick="PatientController.setRating(4)">★</span>
+                    <span onclick="PatientController.setRating(5)">★</span>
+                  </div>
+                  <div style="font-size:.8rem;color:var(--color-muted);" id="rating-label">Click a star to rate</div>
+                </div>
+                <div class="form-group"><label class="form-label">Your Review</label><textarea class="form-control" id="feedback-text" rows="4" placeholder="Share your experience…"></textarea></div>
+                <button class="btn btn-primary" onclick="PatientController.submitFeedback()">Submit Feedback →</button>
+              </div>
+            </div>
+            <div>
+
+              <div class="section-title">
+                 My Past Reviews
+              </div>
+
+              <div
+                id="patient-reviews-list"
+                style="
+                display:flex;
+                flex-direction:column;
+                gap:12px;
+              "
+              ></div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- PATIENT: EMERGENCY -->
+        <div class="page" id="page-emergency">
+          <div class="page-header"><h2>🚨 Emergency Services</h2><p>Immediate help — available 24/7 · No login required</p></div>
+          <div style="display:flex;flex-direction:column;gap:20px;max-width:640px;margin:0 auto;">
+            <div class="emergency-banner">
+              <div style="font-size:3rem;margin-bottom:12px;">🚑</div>
+              <h2 style="color:var(--color-heading);margin-bottom:8px;">Need Immediate Help?</h2>
+              <p style="color:var(--color-muted);margin-bottom:24px;">Our emergency hotline is available 24/7.</p>
+              <button class="emergency-btn" onclick="ToastService.show('📞 Calling Emergency Hotline: +20 19 000 0000','info')">📞 Call Emergency Hotline</button>
+              <p style="color:var(--color-muted);font-size:.8rem;margin-top:14px;">+20 19 000 0000</p>
+            </div>
+            <div class="card">
+              <h3 style="color:var(--color-heading);margin-bottom:16px;">🚑 Request Ambulance</h3>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div class="form-group"><label class="form-label">Your Location</label><input class="form-control" value="15 Tahrir St, Cairo"></div>
+                <div class="form-group"><label class="form-label">Emergency Type</label>
+                  <select class="form-control"><option>Cardiac Emergency</option><option>Accident / Injury</option><option>Difficulty Breathing</option><option>Stroke Symptoms</option><option>Other</option></select></div>
+                <button class="btn btn-danger" onclick="SharedController.dispatchAmbulance()" style="justify-content:center;">🚑 Dispatch Ambulance Now</button>
+              </div>
+            </div>
+            <div class="card">
+              <h3 style="color:var(--color-heading);margin-bottom:14px;">Emergency Contacts</h3>
+              <div style="display:flex;flex-direction:column;gap:0;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--color-border);"><span style="color:var(--color-muted);">Police</span><span style="color:var(--color-accent);font-weight:700;font-size:1.1rem;">122</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--color-border);"><span style="color:var(--color-muted);">Ambulance</span><span style="color:var(--color-accent);font-weight:700;font-size:1.1rem;">123</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;"><span style="color:var(--color-muted);">Fire Department</span><span style="color:var(--color-accent);font-weight:700;font-size:1.1rem;">180</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS (shared) -->
+        <div class="page" id="page-notifications">
+          <div class="page-header"><h2>Notifications</h2><p>Stay updated with your health journey</p></div>
+          <div id="notif-list" style="max-width:680px;"></div>
+        </div>
+
+        <!-- ==================== DOCTOR PAGES ==================== -->
+
+        <!-- DOCTOR: DASHBOARD -->
+        <div class="page" id="page-doctor-dashboard">
+          <div class="page-header-row">
+           <div>
+              <h2>Doctor Dashboard</h2>
+              <p id="doctor-specialization"></p>
+            </div>
+            <span class="badge badge-green" style="padding:8px 16px;font-size:.8rem;">● On Duty</span>
+          </div>
+          <div class="grid-4" style="margin-bottom:28px;">
+
+  <div class="stat-card">
+    <div
+      class="stat-value"
+      id="today-appointments"
+    >
+      0
+    </div>
+
+    <div class="stat-label">
+      Today's Appointments
+    </div>
+  </div>
+
+
+  <div class="stat-card">
+    <div
+      class="stat-value"
+      id="total-patients"
+    >
+      0
+    </div>
+
+    <div class="stat-label">
+      My Patients
+    </div>
+  </div>
+
+
+  <div class="stat-card">
+    <div
+      class="stat-value"
+      id="completed-today"
+    >
+      0
+    </div>
+
+    <div class="stat-label">
+      Completed Appointments
+    </div>
+  </div>
+
+
+  <div class="stat-card">
+    <div
+      class="stat-value"
+      id="doctor-alert-count"
+    >
+      0
+    </div>
+
+    <div class="stat-label">
+      Admin Alerts
+    </div>
+  </div>
+
+</div>
+          <div class="grid-2">
+            <div>
+              <div class="section-title">Today's Appointments</div>
+              <div id="doctor-appt-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+            </div>
+            <div>
+              <div class="section-title">Upload Report / Prescription</div>
+              <div class="card">
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                  <div class="form-group"><label class="form-label">Patient</label>
+                    <select class="form-control" id="upload-patient-id"></select></div>
+                  <div class="form-group"><label class="form-label">Document Type</label>
+                    <select class="form-control" id="upload-doc-type"><option>Final Report</option><option>Prescription</option><option>Lab Results</option><option>Radiology Report</option><option>Discharge Summary</option></select></div>
+                  <div class="form-group"><label class="form-label">Medical Notes</label><textarea class="form-control" id="upload-notes" rows="3" placeholder="Final confirmed notes…"></textarea></div>
+                  <div style="border:2px dashed var(--color-border);border-radius:10px;padding:24px;text-align:center;color:var(--color-muted);font-size:.88rem;cursor:pointer;" onclick="ToastService.show('File upload simulated ✓','success')">
+                    📁 Click to upload file<br><span style="font-size:.76rem;">PDF, JPG, PNG · Max 10MB</span>
+                  </div>
+                  <button class="btn btn-primary" onclick="DoctorController.uploadDocument()" style="justify-content:center;">Upload Final Report</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+         <!-- DOCTOR: Appointments -->
+        <div class="page" id="page-doctor-appointments">
+
+          <div class="page-header">
+            <h2>Appointment Requests</h2>
+            <p>Approve, reject, and complete appointments</p>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="doctor-appointments-body"></tbody>
+
+            </table>
+         </div>
+
+        </div>
+
+        <!-- DOCTOR: PATIENTS -->
+        <div class="page" id="page-doctor-patients">
+          <div class="page-header-row">
+            <div class="page-header" style="margin-bottom:0;"><h2>My Patients</h2><p>Search and view patient records</p></div>
+            <div class="search-bar"><span>🔍</span><input type="text" placeholder="Search by name, ID, condition…" oninput="DoctorController.searchPatients(this.value)" id="doctor-patient-search"></div>
+          </div>
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="UIHelpers.setTabActive(this)">All Patients</button>
+            <button class="filter-tab" onclick="UIHelpers.setTabActive(this)">Chronic Conditions</button>
+            <button class="filter-tab" onclick="UIHelpers.setTabActive(this)">Recent Visits</button>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Patient</th><th>Age</th><th>Condition</th><th>Last Visit</th><th>Next Appt</th><th>Actions</th></tr></thead>
+            <tbody id="doctor-patients-body"></tbody>
+          </table></div>
+        </div>
+
+        <!-- DOCTOR: FINAL REPORTS -->
+        <div class="page" id="page-doctor-reports">
+          <div class="page-header"><h2>Final Reports</h2><p>Confirmed and finalized medical reports only</p></div>
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="UIHelpers.setTabActive(this)">All Reports</button>
+            <button class="filter-tab" onclick="UIHelpers.setTabActive(this)">Lab Results</button>
+            <button class="filter-tab" onclick="UIHelpers.setTabActive(this)">Prescriptions</button>
+            <button class="filter-tab" onclick="UIHelpers.setTabActive(this)">Discharge</button>
+          </div>
+          <div id="final-reports-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+        </div>
+
+        <!-- DOCTOR: ALERTS -->
+        <div class="page" id="page-doctor-alerts">
+          <div class="page-header"><h2>Admin Alerts</h2><p>Warnings and notifications from administration</p></div>
+          <div id="doctor-alerts-list" style="max-width:700px;display:flex;flex-direction:column;gap:12px;"></div>
+        </div>
+
+        <!-- NURSE: NOTIFICATIONS -->
+        <div class="page" id="page-nurse-notifications">
+          <div class="page-header">
+            <h2>Notifications</h2>
+            <p>Important updates and admin alerts</p>
+          </div>
+
+          <div id="nurse-alerts-list"
+            style="max-width:700px;display:flex;flex-direction:column;gap:12px;">
+          </div>
+        </div>
+
+        <!-- ==================== ADMIN PAGES ==================== -->
+
+        <!-- ADMIN: DASHBOARD -->
+        <div class="page" id="page-admin-dashboard">
+          <div class="page-header"><h2>Admin Dashboard</h2><p>System overview and management</p></div>
+          <div class="grid-4" style="margin-bottom:28px;">
+
+  <div class="stat-card">
+    <div class="stat-icon">👥</div>
+    <div class="stat-label">Total Users</div>
+    <div
+      class="stat-value"
+      id="admin-total-users"
+    >
+      0
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon">📅</div>
+    <div class="stat-label">Today's Appointments</div>
+    <div
+      class="stat-value"
+      id="admin-today-appointments"
+    >
+      0
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon">🏠</div>
+    <div class="stat-label">Home Service Requests</div>
+    <div
+      class="stat-value"
+      id="admin-home-req-count"
+    >
+      0
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon">⭐</div>
+    <div class="stat-label">Feedback</div>
+    <div
+      class="stat-value"
+      id="admin-feedback-count"
+      style="color:var(--color-warning);"
+    >
+      0
+    </div>
+  </div>
+
+</div>
+          <div class="grid-2">
+            <div>
+              <div class="section-title">Send Alert to Doctors</div>
+              <div class="alert-send-card">
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                  <div class="form-group"><label class="form-label">Target Doctor(s)</label>
+                    <select class="form-control" id="alert-target">
+                      <option value="all">All Doctors</option>
+                      <option>Dr. Mohamed Ahmed</option><option>Dr. Lina Khalil</option>
+                      <option>Dr. Omar Hassan</option><option>Dr. Nadia Samy</option>
+                      <option>Dr. Tarek Mansour</option><option>Dr. Rania Fahmy</option>
+                    </select></div>
+                  <div class="form-group"><label class="form-label">Alert Type</label>
+                    <select class="form-control" id="alert-type">
+                      <option value="warning">⚠️ Warning</option>
+                      <option value="info">ℹ️ Info</option>
+                      <option value="urgent">🚨 Urgent</option>
+                    </select></div>
+                  <div class="form-group"><label class="form-label">Message</label><textarea class="form-control" id="alert-message" rows="3" placeholder="Enter alert message for doctor(s)…"></textarea></div>
+                  <button class="btn btn-primary" onclick="AdminController.sendDoctorAlert()">📢 Send Alert</button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="section-title">Recent Feedback</div>
+              <div id="admin-recent-feedback" style="display:flex;flex-direction:column;gap:10px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN: ACTIVITY LOGS -->
+        <div class="page" id="page-admin-logs">
+          <div class="page-header-row">
+            <div class="page-header" style="margin-bottom:0;"><h2>Activity Logs</h2><p>User requests and home service requests</p></div>
+            <div style="display:flex;gap:8px;">
+              <button class="filter-tab active" onclick="AdminController.filterLogs(this,'all')" id="log-filter-all">All</button>
+              <button class="filter-tab" onclick="AdminController.filterLogs(this,'user-req')">User Requests</button>
+              <button class="filter-tab" onclick="AdminController.filterLogs(this,'home-req')">Home Services</button>
+              <button class="filter-tab" onclick="AdminController.filterLogs(this,'payment')">Payments</button>
+            </div>
+          </div>
+          <div id="activity-logs" style="margin-top:20px;"></div>
+        </div>
+
+        <!-- ADMIN: FEEDBACK MANAGEMENT -->
+        <div class="page" id="page-admin-feedback">
+          <div class="page-header"><h2>Feedback Management</h2><p>All patient reviews and ratings</p></div>
+          <div class="grid-4" style="margin-bottom:24px;">
+            <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-label">Avg Rating</div><div class="stat-value" style="font-size:1.6rem;" id="avg-rating-display">4.8</div></div>
+            <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-label">Total Reviews</div><div class="stat-value" id="total-reviews-count">3</div></div>
+            <div class="stat-card">
+  <div class="stat-icon">🆕</div>
+  <div class="stat-label">
+    New This Week
+  </div>
+  <div
+    class="stat-value"
+    id="feedback-week-count"
+  >
+    0
+  </div>
+</div>
+            <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">Resolved</div><div class="stat-value">-</div></div>
+          </div>
+          <div id="admin-all-feedback" style="display:flex;flex-direction:column;gap:12px;"></div>
+        </div>
+
+        <!-- ADMIN: PAYMENTS -->
+        <div class="page" id="page-admin-payments">
+          <div class="page-header"><h2>Payments & Insurance</h2><p>Validate and track financial records</p></div>
+          <div class="grid-4" style="margin-bottom:24px;">
+            <div class="stat-card">
+  <div class="stat-label">
+    Today's Revenue
+  </div>
+  <div
+    class="stat-value"
+    id="admin-revenue-today"
+  >
+    EGP 0
+  </div>
+</div>
+
+<div class="stat-card">
+  <div class="stat-label">
+    Pending
+  </div>
+  <div
+    class="stat-value"
+    id="admin-pending-payments"
+  >
+    0
+  </div>
+</div>
+
+<div class="stat-card">
+  <div class="stat-label">
+    Insurance Claims
+  </div>
+  <div
+    class="stat-value"
+    id="admin-insurance-count"
+  >
+    0
+  </div>
+</div>
+
+<div class="stat-card">
+  <div class="stat-label">
+    Validated Today
+  </div>
+  <div
+    class="stat-value"
+    id="admin-success-payments"
+  >
+    0
+  </div>
+</div>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Patient</th><th>Doctor</th><th>Amount</th><th>Method</th><th>Insurance</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="payments-body"></tbody>
+          </table></div>
+        </div>
+
+        <!-- ADMIN: EMERGENCY -->
+        <div class="page" id="page-emergency-mgmt">
+          <div class="page-header"><h2>🚨 Emergency Management</h2><p>Handle and dispatch emergency requests</p></div>
+          <div id="emergency-list" style="display:flex;flex-direction:column;gap:14px;"></div>
+        </div>
+        <!-- ADMIN: USERS MANAGEMENT -->
+<div class="page" id="page-admin-users">
+  <div class="page-header">
+    <h2>User Management</h2>
+    <p>Approve or reject registered users</p>
+  </div>
+
+  <div class="filter-tabs" style="margin-bottom:15px;">
+    <button class="filter-tab active" onclick="AdminController.filterUsers(this,'all')">All</button>
+    <button class="filter-tab" onclick="AdminController.filterUsers(this,'pending')">Pending</button>
+    <button class="filter-tab" onclick="AdminController.filterUsers(this,'approved')">Approved</button>
+    <button class="filter-tab" onclick="AdminController.filterUsers(this,'rejected')">Rejected</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="admin-users-body"></tbody>
+    </table>
+  </div>
+</div>
+
+
+        <!-- ==================== SUPER ADMIN PAGES ==================== -->
+
+        <!-- SUPER ADMIN: DASHBOARD -->
+
+<div class="page" id="page-superadmin-dashboard">
+
+  <div class="page-header">
+    <h2>SuperAdmin Dashboard</h2>
+    <p>Full system control and oversight</p>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:28px;">
+
+    <!-- Total Users -->
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label">Total Users</div>
+      <div
+        class="stat-value"
+        id="superadmin-total-users"
+      >
+        0
+      </div>
+    </div>
+
+    <!-- Admins -->
+    <div class="stat-card">
+      <div class="stat-icon">🛡️</div>
+      <div class="stat-label">Admins</div>
+      <div
+        class="stat-value"
+        id="superadmin-admins-count"
+        style="color:var(--color-accent);"
+      >
+        0
+      </div>
+    </div>
+
+    <!-- Home Requests -->
+    <div class="stat-card">
+      <div class="stat-icon">🏠</div>
+      <div class="stat-label">Home Service Requests</div>
+      <div
+        class="stat-value"
+        id="superadmin-home-count"
+      >
+        0
+      </div>
+    </div>
+
+    <!-- Feedback -->
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-label">Feedback</div>
+      <div
+        class="stat-value"
+        id="superadmin-feedback-count"
+        style="color:var(--color-warning);"
+      >
+        0
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Recent Feedback -->
+  <div class="grid-2">
+
+    <div>
+      <div class="section-title">
+        Recent Feedback
+      </div>
+
+      <div
+        id="superadmin-recent-feedback"
+        style="
+          display:flex;
+          flex-direction:column;
+          gap:10px;
+        "
+      ></div>
+    </div>
+
+  </div>
+
+</div>
+
+        <!-- SUPER ADMIN: USER MANAGEMENT -->
+        <div class="page" id="page-superadmin-users">
+          <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <h2>Full User Management</h2>
+              <p>View all users, create and manage Admin accounts</p>
+            </div>
+            <button class="btn btn-primary" onclick="SuperAdminController.showCreateAdminForm()">+ Create Admin</button>
+          </div>
+          <div class="filter-tabs" style="margin-bottom:15px;">
+            <button class="filter-tab superadmin-filter-tab active" onclick="SuperAdminController.filterUsers(this,'all')">All</button>
+            <button class="filter-tab superadmin-filter-tab" onclick="SuperAdminController.filterUsers(this,'admins')">Admins 🛡️</button>
+            <button class="filter-tab superadmin-filter-tab" onclick="SuperAdminController.filterUsers(this,'pending')">Pending</button>
+            <button class="filter-tab superadmin-filter-tab" onclick="SuperAdminController.filterUsers(this,'active')">Active</button>
+            <button class="filter-tab superadmin-filter-tab" onclick="SuperAdminController.filterUsers(this,'suspended')">Suspended</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="superadmin-users-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SUPER ADMIN: Create Admin Modal -->
+        <div id="create-admin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">
+          <div class="card" style="width:100%;max-width:440px;padding:28px;border-radius:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+              <h3 style="margin:0;">Create Admin Account</h3>
+              <button onclick="SuperAdminController.hideCreateAdminForm()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--color-muted);">✕</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input class="form-control" id="create-admin-name" type="text" placeholder="Admin Full Name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email (Gmail)</label>
+                <input class="form-control" id="create-admin-email" type="email" placeholder="admin@gmail.com" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Password</label>
+                <input class="form-control" id="create-admin-pass" type="password" placeholder="Min 6 chars, letters + numbers" />
+              </div>
+              <button class="btn btn-primary" onclick="SuperAdminController.createAdmin()">Create Admin</button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- NURSE: DASHBOARD -->
+<div class="page" id="page-nurse-dashboard">
+
+  <div class="page-header">
+    <h2>Nurse Dashboard</h2>
+    <p>Home Service Requests</p>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:24px;">
+
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-label">Total Requests</div>
+      <div
+        class="stat-value"
+        id="nurse-total-requests"
+      >
+        0
+      </div>
+    </div>
+
+
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-label">Pending</div>
+      <div
+        class="stat-value"
+        id="nurse-pending-count"
+        style="color:var(--color-warning);"
+      >
+        0
+      </div>
+    </div>
+
+
+    <div class="stat-card">
+      <div class="stat-icon">🚀</div>
+      <div class="stat-label">In Progress</div>
+      <div
+        class="stat-value"
+        id="nurse-progress-count"
+        style="color:var(--color-accent);"
+      >
+        0
+      </div>
+    </div>
+
+
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-label">Completed</div>
+      <div
+        class="stat-value"
+        id="nurse-completed-count"
+        style="color:var(--color-success);"
+      >
+        0
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-title">Service Requests</div>
+
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="UIHelpers.setTabActive(this)">All</button>
+    <button class="filter-tab" onclick="UIHelpers.setTabActive(this)">Pending</button>
+    <button class="filter-tab" onclick="UIHelpers.setTabActive(this)">In Progress</button>
+    <button class="filter-tab" onclick="UIHelpers.setTabActive(this)">Completed</button>
+  </div>
+
+  <div
+    id="nurse-requests-list"
+    style="display:flex;flex-direction:column;gap:12px;"
+  ></div>
+
+</div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-backdrop" id="modal-backdrop" onclick="ModalService.closeOnBackdrop(event)">
+    <div class="modal" id="modal-box">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">Detail</div>
+        <button class="modal-close" onclick="ModalService.close()">✕</button>
+      </div>
+      <div id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+</div>
+
+<!-- Models -->
+<script type="module" src="js/models/DoctorModel.js"></script>
+<script type="module" src="js/models/AppointmentModel.js"></script>
+<script type="module" src="js/models/PatientModel.js"></script>
+<script type="module" src="js/models/WalletModel.js"></script>
+
+<!-- Repositories (Data Layer) -->
+<script type="module" src="js/repositories/Database.js"></script>
+<script type="module" src="js/repositories/apiRepository.js"></script>
+
+<!-- Services (Business Logic) -->
+<script type="module" src="js/services/ToastService.js"></script>
+<script type="module" src="js/services/ModalService.js"></script>
+<script type="module" src="js/services/AuthService.js"></script>
+<script type="module" src="js/services/AppointmentService.js"></script>
+<script type="module" src="js/services/WalletService.js"></script>
+<script type="module" src="js/services/BillingService.js"></script>
+<script type="module" src="js/services/FeedbackService.js"></script>
+<script type="module" src="js/services/EmergencyService.js"></script>
+<script type="module" src="js/services/AdminService.js"></script>
+    <script type="module" src="js/services/SuperAdminService.js"></script>
+<script type="module" src="js/services/NurseService.js"></script>
+<script type="module" src="js/services/doctorService.js"></script>
+
+
+
+<!-- Views (Rendering) -->
+<script type="module" src="js/views/PatientView.js"></script>
+<script type="module" src="js/views/DoctorView.js"></script>
+<script type="module" src="js/views/AdminView.js"></script>
+    <script type="module" src="js/views/SuperAdminView.js"></script>
+<script type="module" src="js/views/NurseView.js"></script>
+<script type="module" src="js/views/SharedView.js"></script>
+
+<!-- Controllers -->
+<script type="module" src="js/controllers/UIHelpers.js"></script>
+<script type="module" src="js/controllers/ThemeController.js"></script>
+<script type="module" src="js/controllers/AuthController.js"></script>
+<script type="module" src="js/controllers/PatientController.js"></script>
+<script type="module" src="js/controllers/DoctorController.js"></script>
+<script type="module" src="js/controllers/AdminController.js"></script>
+    <script type="module" src="js/controllers/SuperAdminController.js"></script>
+<script type="module" src="js/controllers/SharedController.js"></script>
+<script type="module" src="js/controllers/NavigationController.js"></script>
+
+
+
+
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>

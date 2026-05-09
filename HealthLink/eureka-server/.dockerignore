@@ -1,0 +1,12 @@
+target/
+.idea/
+.git/
+node_modules/
+logs/
+*.log
+.mvn/
+mvnw
+mvnw.cmd
+HELP.md
+Dockerfile
+.dockerignore

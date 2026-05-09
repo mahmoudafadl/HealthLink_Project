@@ -1,0 +1,200 @@
+/* ============================================================
+   HEALTHLINK — PAGE-SPECIFIC STYLES
+   Login, Wallet, Emergency, Alerts, Logs
+============================================================ */
+
+/* ---- LOGIN SCREEN ---- */
+#login-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  padding: 20px;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.login-logo { text-align: center; margin-bottom: 32px; }
+.login-logo .brand-icon { width: 56px; height: 56px; font-size: 1.8rem; margin: 0 auto 12px; }
+.login-logo h1 { font-size: 1.8rem; color: var(--color-heading); margin-bottom: 6px; }
+.login-logo p  { color: var(--color-muted); font-size: .9rem; }
+
+.login-role-label {
+  font-size: .83rem;
+  color: var(--color-muted);
+  margin-bottom: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.login-roles {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.login-roles .role-btn {
+  flex: 1;
+  max-width: 125px;
+}
+
+.role-btn {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-text-inv);
+  color: var(--color-muted);
+  font-family: var(--font-body);
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  text-align: center;
+}
+
+.role-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-heading);
+}
+
+.role-btn.selected {
+  background: var(--color-accent-dim);
+  border-color: var(--color-accent);
+  color: var(--color-accent-light);
+}
+
+.login-form { display: flex; flex-direction: column; gap: 16px; }
+
+.login-hint {
+  font-size: .78rem;
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 4px;
+}
+
+.emergency-login-link {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  color: var(--color-danger);
+  font-size: .85rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ---- WALLET ---- */
+.wallet-card {
+  background: linear-gradient(135deg, var(--color-bg-light), rgba(0, 180, 162, .15));
+  border: 1px solid var(--color-accent);
+  border-radius: 18px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.wallet-card::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(0, 212, 190, .12), transparent 70%);
+  pointer-events: none;
+}
+
+.wallet-balance {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  color: var(--color-heading);
+  margin: 8px 0;
+}
+
+.wallet-label {
+  font-size: .75rem;
+  color: var(--color-accent-light);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 600;
+}
+
+/* ---- ACTIVITY LOGS ---- */
+.log-item {
+  display: flex;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-text-inv);
+  margin-bottom: 8px;
+  align-items: flex-start;
+}
+
+.log-type {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 3px 8px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.log-type.user-req { background: rgba(155, 142, 196, .2); color: var(--color-purple); }
+.log-type.home-req { background: rgba(0, 180, 162, .15);  color: var(--color-accent-light); }
+.log-type.payment  { background: rgba(245, 166,  35, .15); color: var(--color-warning); }
+
+/* ---- ALERT SEND PANEL ---- */
+.alert-send-card {
+  background: var(--color-card);
+  border: 2px solid rgba(245, 166, 35, .3);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+/* ---- EMERGENCY BANNER ---- */
+.emergency-banner {
+  background: linear-gradient(135deg, rgba(255, 107, 107, .15), rgba(245, 166, 35, .1));
+  border: 1px solid rgba(255, 107, 107, .4);
+  border-radius: var(--radius);
+  padding: 28px;
+  text-align: center;
+}
+
+.emergency-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 40px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--color-danger), #ff4757);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  animation: pulse 2s infinite;
+  font-family: var(--font-body);
+  box-shadow: 0 0 30px rgba(255, 107, 107, .4);
+}
+
+@keyframes pulse {
+  0%,  100% { box-shadow: 0 0 30px rgba(255, 107, 107, .4); }
+  50%        { box-shadow: 0 0 50px rgba(255, 107, 107, .7); }
+}

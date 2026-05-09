@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5500"
+              - "http://127.0.0.1:5500"
+              - "http://192.168.1.9:5500"
+              - "http://192.168.1.9"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: auth-service
+          uri: lb://healthlink-backend
+          predicates:
+            - Path=/api/auth/**
+        - id: notification-service
+          uri: lb://healthlink-notification-service
+          predicates:
+            - Path=/api/notifications/**
+        - id: backend-service
+          uri: lb://healthlink-backend
+          predicates:
+            - Path=/api/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
